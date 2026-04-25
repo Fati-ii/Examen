@@ -22,10 +22,10 @@ public interface PartenaireRepository extends JpaRepository<Partenaire, Long> {
 
     /**
      * Recherche tous les partenaires par catégorie
-     * @param catégorie la catégorie du partenaire
+     * @param categorie la catégorie du partenaire
      * @return une liste de partenaires
      */
-    List<Partenaire> findByCategorie(String catégorie);
+    List<Partenaire> findByCategorie(String categorie);
 
     /**
      * Recherche tous les partenaires par statut
@@ -49,8 +49,9 @@ public interface PartenaireRepository extends JpaRepository<Partenaire, Long> {
     Optional<Partenaire> findByEmail(String email);
 
     /**
-     * Recherche tous les partenaires avec un statut actif
-     * @return une liste de partenaires actifs
+     * Recherche tous les partenaires avec un statut particulier (insensible à la casse)
+     * @param statut le statut
+     * @return une liste de partenaires
      */
     List<Partenaire> findByStatutIgnoreCase(String statut);
 }

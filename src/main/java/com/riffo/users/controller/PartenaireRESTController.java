@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,12 +16,16 @@ import java.util.Optional;
  * Base URL: /api/partenaires
  */
 @RestController
-@RequestMapping("/partenaires")
+@RequestMapping("/api/partenaires")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class PartenaireRESTController {
 
+    private final PartenaireService partenaireService;
+
     @Autowired
-    private PartenaireService partenaireService;
+    public PartenaireRESTController(PartenaireService partenaireService) {
+        this.partenaireService = partenaireService;
+    }
 
     /**
      * Récupère tous les partenaires
@@ -41,12 +46,9 @@ public class PartenaireRESTController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<Partenaire> getPartenaireById(@PathVariable Long id) {
-        Optional<Partenaire> partenaire = partenaireService.getPartenaireById(id);
-        if (partenaire.isPresent()) {
-            return ResponseEntity.ok(partenaire.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return partenaireService.getPartenaireById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**
@@ -57,12 +59,9 @@ public class PartenaireRESTController {
      */
     @GetMapping("/search/nom")
     public ResponseEntity<Partenaire> getPartenaireByNom(@RequestParam String nom) {
-        Optional<Partenaire> partenaire = partenaireService.getPartenaireByNom(nom);
-        if (partenaire.isPresent()) {
-            return ResponseEntity.ok(partenaire.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return partenaireService.getPartenaireByNom(nom)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**
@@ -109,12 +108,9 @@ public class PartenaireRESTController {
      */
     @GetMapping("/search/email")
     public ResponseEntity<Partenaire> getPartenaireByEmail(@RequestParam String email) {
-        Optional<Partenaire> partenaire = partenaireService.getPartenaireByEmail(email);
-        if (partenaire.isPresent()) {
-            return ResponseEntity.ok(partenaire.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return partenaireService.getPartenaireByEmail(email)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**
@@ -124,13 +120,9 @@ public class PartenaireRESTController {
      * @return le partenaire enregistré avec code 201
      */
     @PostMapping
-    public ResponseEntity<Partenaire> addPartenaire(@RequestBody Partenaire partenaire) {
-        try {
-            Partenaire nouveauPartenaire = partenaireService.addPartenaire(partenaire);
-            return ResponseEntity.status(HttpStatus.CREATED).body(nouveauPartenaire);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<Partenaire> addPartenaire(@Valid @RequestBody Partenaire partenaire) {
+        Partenaire nouveauPartenaire = partenaireService.addPartenaire(partenaire);
+        return ResponseEntity.status(HttpStatus.CREATED).body(nouveauPartenaire);
     }
 
     /**
@@ -141,13 +133,9 @@ public class PartenaireRESTController {
      * @return le partenaire mis à jour avec code 200
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Partenaire> updatePartenaire(@PathVariable Long id, @RequestBody Partenaire partenaire) {
-        try {
-            Partenaire partenaireMAJ = partenaireService.updatePartenaire(id, partenaire);
-            return ResponseEntity.ok(partenaireMAJ);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Partenaire> updatePartenaire(@PathVariable Long id, @Valid @RequestBody Partenaire partenaire) {
+        Partenaire partenaireMAJ = partenaireService.updatePartenaire(id, partenaire);
+        return ResponseEntity.ok(partenaireMAJ);
     }
 
     /**
@@ -158,12 +146,8 @@ public class PartenaireRESTController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePartenaire(@PathVariable Long id) {
-        try {
-            partenaireService.deletePartenaire(id);
-            return ResponseEntity.noContent().build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
-        }
+        partenaireService.deletePartenaire(id);
+        return ResponseEntity.noContent().build();
     }
 
     /**

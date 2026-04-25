@@ -1,6 +1,8 @@
 package com.riffo.users.service.impl;
 
 import com.riffo.users.entity.Partenaire;
+import com.riffo.users.exception.DuplicateEmailException;
+import com.riffo.users.exception.ResourceNotFoundException;
 import com.riffo.users.repository.PartenaireRepository;
 import com.riffo.users.service.PartenaireService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +19,12 @@ import java.util.Optional;
 @Transactional
 public class PartenaireServiceImpl implements PartenaireService {
 
+    private final PartenaireRepository partenaireRepository;
+
     @Autowired
-    private PartenaireRepository partenaireRepository;
+    public PartenaireServiceImpl(PartenaireRepository partenaireRepository) {
+        this.partenaireRepository = partenaireRepository;
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -70,7 +76,7 @@ public class PartenaireServiceImpl implements PartenaireService {
         
         // Vérifier si l'email existe déjà
         if (existsByEmail(partenaire.getEmail())) {
-            throw new IllegalArgumentException("Un partenaire avec cet email existe déjà");
+            throw new DuplicateEmailException("Un partenaire avec l'email " + partenaire.getEmail() + " existe déjà");
         }
         
         return partenaireRepository.save(partenaire);
@@ -89,7 +95,7 @@ public class PartenaireServiceImpl implements PartenaireService {
         Optional<Partenaire> partenaireExistant = partenaireRepository.findById(id);
         
         if (partenaireExistant.isEmpty()) {
-            throw new IllegalArgumentException("Le partenaire avec l'ID " + id + " n'existe pas");
+            throw new ResourceNotFoundException("Le partenaire avec l'ID " + id + " n'existe pas");
         }
         
         Partenaire p = partenaireExistant.get();
@@ -107,8 +113,8 @@ public class PartenaireServiceImpl implements PartenaireService {
         if (partenaire.getVille() != null) {
             p.setVille(partenaire.getVille());
         }
-        if (partenaire.getTéléphone() != null) {
-            p.setTéléphone(partenaire.getTéléphone());
+        if (partenaire.getTelephone() != null) {
+            p.setTelephone(partenaire.getTelephone());
         }
         if (partenaire.getEmail() != null) {
             p.setEmail(partenaire.getEmail());
@@ -136,7 +142,7 @@ public class PartenaireServiceImpl implements PartenaireService {
         }
         
         if (!partenaireRepository.existsById(id)) {
-            throw new IllegalArgumentException("Le partenaire avec l'ID " + id + " n'existe pas");
+            throw new ResourceNotFoundException("Le partenaire avec l'ID " + id + " n'existe pas");
         }
         
         partenaireRepository.deleteById(id);
